@@ -12,8 +12,7 @@ public class Vehicle : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
     }
-
-    // Le 4e paramètre est conservé pour rester compatible avec VehicleSpawner, mais n'est plus utilisé.
+    
     public void Initialize(int movementDirection, float vehicleSpeed, float vehicleDestroyX, float unusedRewindSeconds = 0f)
     {
         direction = movementDirection;
@@ -37,7 +36,6 @@ public class Vehicle : MonoBehaviour
 
         if (isOutOfBounds)
         {
-            // Le RewindManager détruira l'objet (mode DisableDestroy, voir le spawner).
             gameObject.SetActive(false);
         }
     }

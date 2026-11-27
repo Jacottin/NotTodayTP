@@ -80,7 +80,7 @@ public class VehicleSpawner : MonoBehaviour
         float laneZ = spawnFromLeft ? leftToRightLaneZ : rightToLeftLaneZ;
         int direction = spawnFromLeft ? 1 : -1;
 
-        Vector3 spawnPosition = new Vector3(spawnX, 0.5f, laneZ);
+        Vector3 spawnPosition = new Vector3(spawnX, 0.2f, laneZ);
 
         Vehicle vehicle = Instantiate(vehiclePrefab, spawnPosition, Quaternion.identity);
 
