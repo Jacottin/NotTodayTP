@@ -44,23 +44,29 @@ public class RewindManager : MonoBehaviour
     /// <param name="seconds">Parameter defining how many seconds should object rewind to from now (Parameter must be >=0).</param>
     public void InstantRewindTimeBySeconds(float seconds)
     {
-        if(seconds>HowManySecondsAvailableForRewind)
+        if (seconds > HowManySecondsAvailableForRewind)
         {
             Debug.LogError("Not enough stored tracked value!!! Reaching on wrong index. Called rewind should be less than HowManySecondsAvailableForRewind property");
             return;
         }
-        if(seconds<0)
+
+        if (seconds < 0)
         {
             Debug.LogError("Parameter in RewindTimeBySeconds() must have positive value!!!");
             return;
         }
+
+        _rewindedObjects.RemoveAll(x => x == null);
+        _lateAddedRewindedObjects.RemoveAll(x => x.Item1 == null);
+
         _rewindedObjects.ForEach(x => x.Rewind(seconds));
+
         _lateAddedRewindedObjects.ForEach(x =>
         {
-            x.Item1.Rewind(rewindSeconds);
+            x.Item1.Rewind(seconds);
 
             if (x.Item1.IsManagerTrackingActiveState)
-                x.Item1.RestoreObjectActiveState(rewindSeconds);
+                x.Item1.RestoreObjectActiveState(seconds);
         });
 
         HowManySecondsAvailableForRewind -= seconds;
@@ -153,15 +159,16 @@ public class RewindManager : MonoBehaviour
     }
     private void Awake()
     {
-        _rewindedObjects = FindObjectsOfType<RewindAbstract>().ToList();
-
         if (Instance != null && Instance != this)
         {
-            Destroy(Instance);
+            Debug.LogWarning("Un deuxième RewindManager a été détecté et supprimé.", this);
+            Destroy(this);
+            return;
         }
 
         Instance = this;
 
+        _rewindedObjects = FindObjectsByType<RewindAbstract>(FindObjectsSortMode.None).ToList();
         _rewindedObjects.ForEach(x => x.MainInit());
     }
     private void OnEnable()

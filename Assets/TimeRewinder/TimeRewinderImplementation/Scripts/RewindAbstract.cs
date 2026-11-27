@@ -115,17 +115,19 @@ public abstract class RewindAbstract : MonoBehaviour
         if (body != null)
         {
             VelocityValues valuesToWrite;
-            valuesToWrite.velocity= body.linearVelocity;
-            valuesToWrite.angularVelocity = body.angularVelocity;
+            valuesToWrite.velocity = body.isKinematic ? Vector3.zero : body.linearVelocity;
+            valuesToWrite.angularVelocity = body.isKinematic ? Vector3.zero : body.angularVelocity;
             valuesToWrite.angularVelocity2D = 0;
-            trackedVelocities.WriteLastValue(valuesToWrite);            
+
+            trackedVelocities.WriteLastValue(valuesToWrite);
         }
-        else if (body2!=null)
+        else if (body2 != null)
         {
             VelocityValues valuesToWrite;
-            valuesToWrite.velocity = body2.linearVelocity;
+            valuesToWrite.velocity = body2.isKinematic ? Vector2.zero : body2.linearVelocity;
             valuesToWrite.angularVelocity = Vector3.zero;
-            valuesToWrite.angularVelocity2D = body2.angularVelocity;
+            valuesToWrite.angularVelocity2D = body2.isKinematic ? 0f : body2.angularVelocity;
+
             trackedVelocities.WriteLastValue(valuesToWrite);
         }
         else
@@ -139,18 +141,27 @@ public abstract class RewindAbstract : MonoBehaviour
     /// </summary>
     /// <param name="seconds">Use seconds parameter from Rewind() method</param>
     protected void RestoreVelocity(float seconds)
-    {   
-        if(body!=null)
+    {
+        VelocityValues valuesToRead = trackedVelocities.ReadFromBuffer(seconds);
+
+        if (body != null)
         {
-            VelocityValues valuesToRead= trackedVelocities.ReadFromBuffer(seconds);
-            body.linearVelocity = valuesToRead.velocity;
-            body.angularVelocity = valuesToRead.angularVelocity;
+            if (!body.isKinematic)
+            {
+                body.linearVelocity = valuesToRead.velocity;
+                body.angularVelocity = valuesToRead.angularVelocity;
+            }
+
+            return;
         }
-        else
+
+        if (body2 != null)
         {
-            VelocityValues valuesToRead = trackedVelocities.ReadFromBuffer(seconds);
-            body2.linearVelocity = valuesToRead.velocity;
-            body2.angularVelocity = valuesToRead.angularVelocity2D;
+            if (!body2.isKinematic)
+            {
+                body2.linearVelocity = valuesToRead.velocity;
+                body2.angularVelocity = valuesToRead.angularVelocity2D;
+            }
         }
     }
     #endregion

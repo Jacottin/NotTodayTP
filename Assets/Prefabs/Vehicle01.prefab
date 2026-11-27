@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 7466935105987701717}
   - component: {fileID: 7507836353015490080}
   - component: {fileID: 9056206400721664050}
-  - component: {fileID: 2218646145592339667}
   m_Layer: 0
   m_Name: Vehicle01
   m_TagString: Untagged
@@ -116,7 +115,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1853014c10a6eb46a8363fdc11758e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GenericRewind
-  trackObjectActiveState: 1
+  trackObjectActiveState: 0
   trackTransform: 1
   trackVelocity: 1
   trackAnimator: 0
@@ -127,19 +126,6 @@ MonoBehaviour:
       particleTrackingLimit: 0
       particleRestartFrom: 0
       particleSystems: []
---- !u!114 &2218646145592339667
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 286525633527202343}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e64d270227f9e234d98e01d146ee25a5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RewindManager
-  <HowManySecondsToTrack>k__BackingField: 12
 --- !u!1 &2053421491725015778
 GameObject:
   m_ObjectHideFlags: 0

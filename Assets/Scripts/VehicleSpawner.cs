@@ -35,16 +35,6 @@ public class VehicleSpawner : MonoBehaviour
         {
             Debug.LogError("Aucun prefab de véhicule n'est assigné dans VehicleSpawner.");
         }
-        else
-        {
-            for (int i = 0; i < vehiclePrefabs.Length; i++)
-            {
-                if (vehiclePrefabs[i] == null)
-                {
-                    Debug.LogError($"Le prefab à l'index {i} est vide.");
-                }
-            }
-        }
 
         if (RewindManager.Instance == null)
         {
@@ -56,6 +46,12 @@ public class VehicleSpawner : MonoBehaviour
 
     private void Update()
     {
+        if (RewindManager.Instance != null && RewindManager.Instance.IsBeingRewinded)
+        {
+            nextSpawnTime += Time.deltaTime;
+            return;
+        }
+
         if (Time.time >= nextSpawnTime)
         {
             SpawnVehicle();
@@ -88,13 +84,12 @@ public class VehicleSpawner : MonoBehaviour
 
         Vehicle vehicle = Instantiate(vehiclePrefab, spawnPosition, Quaternion.identity);
 
-        if (vehicle == null)
-        {
-            Debug.LogError("Instantiate a échoué.");
-            return;
-        }
-
-        vehicle.Initialize(direction, Random.Range(minimumSpeed, maximumSpeed), destroyX, rewindSeconds);
+        vehicle.Initialize(
+            direction,
+            Random.Range(minimumSpeed, maximumSpeed),
+            destroyX,
+            rewindSeconds
+        );
 
         RegisterVehicleForRewind(vehicle.gameObject);
     }
@@ -107,11 +102,12 @@ public class VehicleSpawner : MonoBehaviour
             return;
         }
 
-        GenericRewind[] rewindComponents = vehicle.GetComponentsInChildren<GenericRewind>();
+        GenericRewind[] rewindComponents =
+            vehicle.GetComponentsInChildren<GenericRewind>(true);
 
         if (rewindComponents.Length == 0)
         {
-            Debug.LogWarning($"Aucun composant GenericRewind trouvé sur {vehicle.name}. Ajoutez-le au prefab.");
+            Debug.LogError($"Aucun GenericRewind sur {vehicle.name}.", vehicle);
             return;
         }
 
@@ -122,5 +118,7 @@ public class VehicleSpawner : MonoBehaviour
                 RewindManager.OutOfBoundsBehaviour.Disable
             );
         }
+
+        Debug.Log($"Véhicule enregistré pour le rembobinage : {vehicle.name}", vehicle);
     }
 }

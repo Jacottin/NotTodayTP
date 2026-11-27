@@ -18,6 +18,7 @@ public class PlayerController : MonoBehaviour
     {
         if (!canMove)
         {
+            moveInput = Vector2.zero;
             return;
         }
 
@@ -26,53 +27,41 @@ public class PlayerController : MonoBehaviour
 
         if (Keyboard.current != null)
         {
-            if (Keyboard.current.leftArrowKey.isPressed || Keyboard.current.aKey.isPressed)
-            {
-                horizontal = -1f;
-            }
-
-            if (Keyboard.current.rightArrowKey.isPressed || Keyboard.current.dKey.isPressed)
-            {
-                horizontal = 1f;
-            }
-
-            if (Keyboard.current.upArrowKey.isPressed || Keyboard.current.wKey.isPressed)
-            {
-                vertical = 1f;
-            }
-
-            if (Keyboard.current.downArrowKey.isPressed || Keyboard.current.sKey.isPressed)
-            {
-                vertical = -1f;
-            }
+            if (Keyboard.current.leftArrowKey.isPressed || Keyboard.current.aKey.isPressed) horizontal = -1f;
+            if (Keyboard.current.rightArrowKey.isPressed || Keyboard.current.dKey.isPressed) horizontal = 1f;
+            if (Keyboard.current.upArrowKey.isPressed || Keyboard.current.wKey.isPressed) vertical = 1f;
+            if (Keyboard.current.downArrowKey.isPressed || Keyboard.current.sKey.isPressed) vertical = -1f;
         }
 
         moveInput = new Vector2(horizontal, vertical);
-
-        if (moveInput.sqrMagnitude > 1f)
-        {
-            moveInput.Normalize();
-        }
+        if (moveInput.sqrMagnitude > 1f) moveInput.Normalize();
     }
 
     private void FixedUpdate()
     {
-        if (!canMove)
-        {
-            return;
-        }
+        if (!canMove || rb.isKinematic) return;
 
         Vector3 movement = new Vector3(moveInput.x, 0f, moveInput.y);
         rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
     }
 
-    public void DisableControl()
+    public void BeginRewind()
     {
         canMove = false;
+        moveInput = Vector2.zero;
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        rb.isKinematic = true;
     }
 
-    public void EnableControl()
+    public void EndRewind()
     {
+        rb.isKinematic = false;
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
         canMove = true;
     }
+
+    public void DisableControl() { canMove = false; }
+    public void EnableControl() { canMove = true; }
 }
