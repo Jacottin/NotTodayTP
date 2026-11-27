@@ -865,8 +865,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Maintenez ESPACE pour remonter le temps
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 2e402473d777c394784472dd7f7c537c, type: 2}
+  m_sharedMaterial: {fileID: 5716232812123731640, guid: 2e402473d777c394784472dd7f7c537c, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1329,8 +1329,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: NOT TODAY
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: f4e8cbd23ffc3634a9f0084cd999d8a2, type: 2}
+  m_sharedMaterial: {fileID: 8291335191453972346, guid: f4e8cbd23ffc3634a9f0084cd999d8a2, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
