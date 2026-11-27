@@ -2,9 +2,16 @@ using UnityEngine;
 
 public class Vehicle : MonoBehaviour
 {
+    [Header("Déplacement")]
+    [SerializeField] private float speed = 6f;
+
+    [Header("Disparition")]
+    [SerializeField] private float destroyX = 15f;
+
+    [Header("Rembobinage")]
+    [SerializeField] private float rewindSeconds = 2f;
+
     private Rigidbody rb;
-    private float speed;
-    private float destroyX;
     private int direction;
 
     private void Awake()
@@ -12,11 +19,17 @@ public class Vehicle : MonoBehaviour
         rb = GetComponent<Rigidbody>();
     }
 
-    public void Initialize(int movementDirection, float vehicleSpeed, float vehicleDestroyX)
+    public void Initialize(
+        int movementDirection,
+        float vehicleSpeed,
+        float vehicleDestroyX,
+        float vehicleRewindSeconds
+    )
     {
         direction = movementDirection;
         speed = vehicleSpeed;
         destroyX = vehicleDestroyX;
+        rewindSeconds = vehicleRewindSeconds;
 
         if (direction > 0)
         {
@@ -30,10 +43,19 @@ public class Vehicle : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (rb == null)
+        {
+            return;
+        }
+
         Vector3 movement = new Vector3(direction, 0f, 0f) * speed * Time.fixedDeltaTime;
         rb.MovePosition(rb.position + movement);
 
-        if (Mathf.Abs(transform.position.x) >= destroyX)
+        bool isOutOfBounds =
+            (direction > 0 && transform.position.x >= destroyX) ||
+            (direction < 0 && transform.position.x <= -destroyX);
+
+        if (isOutOfBounds)
         {
             Destroy(gameObject);
         }
@@ -41,16 +63,36 @@ public class Vehicle : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Player"))
+        if (!collision.gameObject.CompareTag("Player"))
         {
-            Debug.Log("Collision avec le joueur !");
-
-            PlayerController player = collision.gameObject.GetComponent<PlayerController>();
-
-            if (player != null)
-            {
-                player.DisableControl();
-            }
+            return;
         }
+
+        Debug.Log("Le joueur a été touché : rembobinage du temps.");
+
+        RewindAfterCollision();
+    }
+
+    private void RewindAfterCollision()
+    {
+        if (RewindManager.Instance == null)
+        {
+            Debug.LogError("RewindManager est absent de la scène.");
+            return;
+        }
+
+        float availableTime = RewindManager.Instance.HowManySecondsAvailableForRewind;
+
+        if (availableTime <= 0f)
+        {
+            Debug.LogWarning("Aucun historique n'est encore disponible pour le rembobinage.");
+            return;
+        }
+
+        float timeToRewind = Mathf.Min(rewindSeconds, availableTime);
+
+        Debug.Log($"Rembobinage de {timeToRewind:F2} secondes.");
+
+        RewindManager.Instance.InstantRewindTimeBySeconds(timeToRewind);
     }
 }

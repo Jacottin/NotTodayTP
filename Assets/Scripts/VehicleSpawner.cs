@@ -24,7 +24,35 @@ public class VehicleSpawner : MonoBehaviour
     [Header("Limite de disparition")]
     [SerializeField] private float destroyX = 15f;
 
+    [Header("Rembobinage après collision")]
+    [SerializeField] private float rewindSeconds = 2f;
+
     private float nextSpawnTime;
+
+    private void Start()
+    {
+        if (vehiclePrefabs == null || vehiclePrefabs.Length == 0)
+        {
+            Debug.LogError("Aucun prefab de véhicule n'est assigné dans VehicleSpawner.");
+        }
+        else
+        {
+            for (int i = 0; i < vehiclePrefabs.Length; i++)
+            {
+                if (vehiclePrefabs[i] == null)
+                {
+                    Debug.LogError($"Le prefab à l'index {i} est vide.");
+                }
+            }
+        }
+
+        if (RewindManager.Instance == null)
+        {
+            Debug.LogError("RewindManager est absent de la scène.");
+        }
+
+        nextSpawnTime = Time.time + 0.5f;
+    }
 
     private void Update()
     {
@@ -39,11 +67,16 @@ public class VehicleSpawner : MonoBehaviour
     {
         if (vehiclePrefabs == null || vehiclePrefabs.Length == 0)
         {
-            Debug.LogError("Aucun prefab de véhicule n'est assigné dans VehicleSpawner.");
             return;
         }
 
         Vehicle vehiclePrefab = vehiclePrefabs[Random.Range(0, vehiclePrefabs.Length)];
+
+        if (vehiclePrefab == null)
+        {
+            Debug.LogError("Spawn annulé : le prefab choisi est vide.");
+            return;
+        }
 
         bool spawnFromLeft = Random.value < 0.5f;
 
@@ -54,6 +87,40 @@ public class VehicleSpawner : MonoBehaviour
         Vector3 spawnPosition = new Vector3(spawnX, 0.5f, laneZ);
 
         Vehicle vehicle = Instantiate(vehiclePrefab, spawnPosition, Quaternion.identity);
-        vehicle.Initialize(direction, Random.Range(minimumSpeed, maximumSpeed), destroyX);
+
+        if (vehicle == null)
+        {
+            Debug.LogError("Instantiate a échoué.");
+            return;
+        }
+
+        vehicle.Initialize(direction, Random.Range(minimumSpeed, maximumSpeed), destroyX, rewindSeconds);
+
+        RegisterVehicleForRewind(vehicle.gameObject);
+    }
+
+    private void RegisterVehicleForRewind(GameObject vehicle)
+    {
+        if (RewindManager.Instance == null)
+        {
+            Debug.LogError("Impossible d'enregistrer le véhicule : RewindManager est absent.");
+            return;
+        }
+
+        GenericRewind[] rewindComponents = vehicle.GetComponentsInChildren<GenericRewind>();
+
+        if (rewindComponents.Length == 0)
+        {
+            Debug.LogWarning($"Aucun composant GenericRewind trouvé sur {vehicle.name}. Ajoutez-le au prefab.");
+            return;
+        }
+
+        foreach (GenericRewind rewindComponent in rewindComponents)
+        {
+            RewindManager.Instance.AddObjectForTracking(
+                rewindComponent,
+                RewindManager.OutOfBoundsBehaviour.Disable
+            );
+        }
     }
 }
